@@ -30,7 +30,18 @@ class WebViewActivity: AppCompatActivity() {
 
         favorite.setOnClickListener {
             if (isFavorite) {
-                showConfirmDeleteFavoriteDialog(shop.id)
+                AlertDialog.Builder(this)
+                        .setTitle(R.string.delete_favorite_dialog_title)
+                        .setMessage(R.string.delete_favorite_dialog_message)
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            FavoriteShop.delete(shop.id)
+                            favorite.text = "お気に入り登録"
+                            isFavorite = FavoriteShop.findBy(shop.id) != null
+                        }
+                        .setNegativeButton(android.R.string.cancel) { _, _ ->}
+                        .create()
+                        .show()
+
             } else {
                 FavoriteShop.insert(FavoriteShop().apply {
                     id = shop.id
@@ -40,9 +51,8 @@ class WebViewActivity: AppCompatActivity() {
                     url = if (shop.couponUrls.sp.isNotEmpty()) shop.couponUrls.sp else shop.couponUrls.pc
                 })
                 favorite.text = "お気に入り削除"
+                isFavorite = FavoriteShop.findBy(shop.id) != null
             }
-
-            isFavorite = FavoriteShop.findBy(shop.id) != null
         }
     }
 
@@ -53,16 +63,4 @@ class WebViewActivity: AppCompatActivity() {
         }
     }
 
-    private fun showConfirmDeleteFavoriteDialog(id: String) {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.delete_favorite_dialog_title)
-            .setMessage(R.string.delete_favorite_dialog_message)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                FavoriteShop.delete(id)
-                favorite.text = "お気に入り登録"
-            }
-            .setNegativeButton(android.R.string.cancel) { _, _ ->}
-            .create()
-            .show()
-    }
 }
